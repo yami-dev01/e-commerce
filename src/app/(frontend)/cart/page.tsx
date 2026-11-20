@@ -21,9 +21,9 @@ export default async function CartPage() {
     depth: 1,
   })
 
-  const rows = customer.cart ?? []
+  const productsInCart = customer.cart ?? []
 
-  if (rows.length === 0) {
+  if (productsInCart.length === 0) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center bg-[#f7f6f2] px-6 text-center text-[#20201e]">
         <h1 className="text-4xl font-semibold tracking-[-1.5px] sm:text-5xl">
@@ -55,14 +55,14 @@ export default async function CartPage() {
         </p>
 
         <div className="mt-10 border-t border-[#20201e]/10">
-          {rows.map((row) => {
+          {productsInCart.map((currProduct) => {
             // product is an object only when it was loaded (depth: 1)
-            if (typeof row.product !== 'object') return null
-            const product = row.product
-            total += product.price * row.quantity
+            if (typeof currProduct.product !== 'object') return null
+            const product = currProduct.product
+            total += product.price * currProduct.quantity
 
             return (
-              <div key={row.id} className="flex flex-col justify-between gap-4 border-b border-[#20201e]/10 py-7 sm:flex-row sm:items-center">
+              <div key={currProduct.id} className="flex flex-col justify-between gap-4 border-b border-[#20201e]/10 py-7 sm:flex-row sm:items-center">
                 <div>
                   <Link
                     href={`/products/${product.slug}`}
@@ -71,12 +71,12 @@ export default async function CartPage() {
                     {product.name}
                   </Link>
                   <p className="mt-2 text-sm text-[#77766f]">
-                    {row.quantity} × ${product.price}
+                    {currProduct.quantity} × ${product.price}
                   </p>
                 </div>
                 <div className="flex items-center gap-6">
                   <p className="font-semibold">
-                    ${(product.price * row.quantity).toFixed(2)}
+                    ${(product.price * currProduct.quantity).toFixed(2)}
                   </p>
                   <RemoveFromCartButton productId={String(product.id)} />
                 </div>
