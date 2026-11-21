@@ -4,6 +4,8 @@ import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { AddToCartButton } from '@/components/AddToCartButton'
 import {formatPrice} from "@/lib/format"
+import { populated } from '@/lib/relation'
+
 
 
 export default async function ProductPage({ params } : { params : Promise<{ slug: string }> }) {
@@ -20,7 +22,7 @@ export default async function ProductPage({ params } : { params : Promise<{ slug
   const product = docs[0]
   if (!product) notFound()
 
-  const image = typeof product.image === 'object' ? product.image : null
+  const image = populated(product.image)
 
   return (
     <main className="min-h-screen bg-[#f7f6f2] px-6 py-12 text-[#20201e] sm:px-12">

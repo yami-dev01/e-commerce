@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import type { Product } from '@/payload-types'
 import {formatPrice} from "@/lib/format"
+import { populated } from '@/lib/relation'
 
 type ProductCardProps = {
   product: Product
@@ -10,9 +11,8 @@ type ProductCardProps = {
 }
 
 export default function ProductCard({ product, showCategory = true }: ProductCardProps) {
-  const image = typeof product.image === 'object' && product.image !== null ? product.image : null
-
-  const category = typeof product.category === 'object' && product.category !== null ? product.category : null
+  const image = populated(product.image)
+  const category = populated(product.category)
 
   return (
     <Link
