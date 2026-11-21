@@ -1,18 +1,12 @@
-import { headers as getHeaders } from 'next/headers'
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
-import { getPayload } from 'payload'
-import config from '@/payload.config'
 import { RemoveFromCartButton } from '@/components/RemoveFromCartButton'
 import { PlaceOrderButton } from '@/components/PlaceOrderButton'
+import { getPayloadClient, requireCustomer } from '@/lib/payload'
+import { formatPrice } from '@/lib/format'
 
 export default async function CartPage() {
-  const payload = await getPayload({ config })
-
-  //logged in customer
-  const { user } = await payload.auth({ headers: await getHeaders() });
-
-  if (!user || user.collection !== 'customers') redirect('/login')
+  const user = await requireCustomer()
+  const payload = await getPayloadClient()
 
   // depth 1 will include the cart 
   const customer = await payload.findByID({
@@ -71,7 +65,7 @@ export default async function CartPage() {
                     {product.name}
                   </Link>
                   <p className="mt-2 text-sm text-[#77766f]">
-                    {currProduct.quantity} × ${product.price}
+                    {currProduct.quantity} × ${formatPrice(product.price)}
                   </p>
                 </div>
                 <div className="flex items-center gap-6">

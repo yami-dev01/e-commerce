@@ -1,13 +1,8 @@
-import { headers as getHeaders } from 'next/headers'
 import Link from 'next/link'
-import { getPayload } from 'payload'
-import config from '@/payload.config'
+import { getCurrentCustomer } from '@/lib/payload'
 
 export default async function HomePage() {
-  const payload = await getPayload({ config })
-
-  const { user } = await payload.auth({ headers: await getHeaders() })
-  const customer = user?.collection === 'customers' ? user : null
+  const customer = await getCurrentCustomer()
 
   return (
     <main className="flex min-h-screen flex-col bg-[#f7f6f2] text-[#20201e]">

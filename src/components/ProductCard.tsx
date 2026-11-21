@@ -2,6 +2,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import type { Product } from '@/payload-types'
+import {formatPrice} from "@/lib/format"
 
 type ProductCardProps = {
   product: Product
@@ -43,7 +44,7 @@ export default function ProductCard({ product, showCategory = true }: ProductCar
         </h2>
 
         <p className="mt-2 text-base font-medium text-[#555550]">
-          ₹{product.price}
+          {formatPrice(product.price)}
         </p>
       </div>
     </Link>

@@ -1,8 +1,17 @@
 import type { CollectionConfig } from 'payload'
+import { calculateOrder } from '../hooks/calculateOrder'
+import { updateStock } from '../hooks/updateStock'
+import { clearCart } from '../hooks/clearCart'
+
 
 export const Orders: CollectionConfig = {
   slug: 'orders',
   admin: { useAsTitle: 'id', defaultColumns: ['id', 'customer', 'total', 'status'] },
+  hooks: {
+    beforeValidate: [calculateOrder],
+    beforeChange: [updateStock],
+    afterChange: [clearCart],
+  },
   access: {
     create: ({ req: { user } }) => user?.collection === 'users',
     read: ({ req: { user } }) => {
@@ -21,16 +30,17 @@ export const Orders: CollectionConfig = {
       required: true,
       fields: [
         { name: 'product', type: 'relationship', relationTo: 'products', required: true },
-        { name: 'name', type: 'text', required: true },
-        { name: 'price', type: 'number', required: true },
+        { name: 'name', type: 'text', admin: { readOnly: true } },
+        { name: 'price', type: 'number', admin: { readOnly: true } },
         { name: 'quantity', type: 'number', required: true, min: 1 },
       ],
     },
-    { name: 'total', type: 'number', required: true },
+    { name: 'total', type: 'number', admin: { readOnly: true } },
     {
       name: 'status',
       type: 'select',
       defaultValue: 'pending',
+      required: true,
       options: [
         { label: 'Pending', value: 'pending' },
         { label: 'Paid', value: 'paid' },

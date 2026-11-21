@@ -76,60 +76,30 @@ export async function removeFromCart(productId: string) {
 export async function placeOrder() {
   const payload = await getPayload({ config })
 
-  // login check
   const { user } = await payload.auth({ headers: await getHeaders() })
   if (!user || user.collection !== 'customers') {
     return { error: 'Please log in first' }
   }
 
-  const customer = await payload.findByID({
-    collection: 'customers',
-    id: user.id,
-    depth: 1,
-  })
+  const customer = await payload.findByID({ collection: 'customers', id: user.id })
 
-  const products = (customer.cart ?? []).filter((row) => typeof row.product === 'object')
+  const items = (customer.cart ?? []).map((row) => ({
+    product: typeof row.product === 'object' ? row.product.id : row.product,
+    quantity: row.quantity,
+  }))
 
-  if (products.length === 0) {
+  if (items.length === 0) {
     return { error: 'Your cart is empty' }
   }
 
-  const items = []
-  let total = 0
-
-  for (const product of products) {
-    const currProduct = product.product as Exclude<typeof product.product, string | number>
-
-    if (currProduct.stock! < product.quantity) {
-      return { error: `Not enough stock for ${currProduct.name}` }
-    }
-
-    items.push({
-      product: currProduct.id,
-      name: currProduct.name,
-      price: currProduct.price,
-      quantity: product.quantity,
+  try {
+    const order = await payload.create({
+      collection: 'orders',
+      data: { customer: user.id, items, status: 'pending' },
     })
-    total += currProduct.price * product.quantity
+
+    return { ok: true, orderId: order.id }
+  } catch (e) {
+    return { error: 'Could not place order' }
   }
-
-  // order create
-  const order = await payload.create({
-    collection: 'orders',
-    data: {
-      customer: user.id,
-      items,
-      total,
-      status: 'pending',
-    },
-  })
-
-  // empty cart
-  await payload.update({
-    collection: 'customers',
-    id: user.id,
-    data: { cart: [] },
-  })
-
-  return { ok: true, orderId: order.id }
 }
