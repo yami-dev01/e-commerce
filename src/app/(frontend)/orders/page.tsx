@@ -1,14 +1,9 @@
-import { headers as getHeaders } from 'next/headers'
 import Link from 'next/link'
-import { redirect } from 'next/navigation'
-import { getPayload } from 'payload'
-import config from '@/payload.config'
+import { getPayloadClient, requireCustomer } from '@/lib/payload'
 
 export default async function OrdersPage() {
-  const payload = await getPayload({ config })
-
-  const { user } = await payload.auth({ headers: await getHeaders() })
-  if (!user || user.collection !== 'customers') redirect('/login')
+  const user = await requireCustomer()
+  const payload = await getPayloadClient()
 
   const { docs: orders } = await payload.find({
     collection: 'orders',
@@ -75,11 +70,11 @@ export default async function OrdersPage() {
                     <div>
                       <p className="font-medium">{item.name}</p>
                       <p className="mt-1 text-xs text-[#77766f]">
-                        {item.quantity} × ${item.price}
+                        {item.quantity} × {item.price}
                       </p>
                     </div>
                     <p className="shrink-0 font-medium">
-                      ${(item.quantity * item.price).toFixed(2)}
+                      ${(item.quantity * (item.price ?? 0)).toFixed(2)}
                     </p>
                   </div>
                 ))}
@@ -88,7 +83,7 @@ export default async function OrdersPage() {
               <div className="flex items-center justify-between border-t border-[#20201e]/10 pt-5">
                 <span className="text-sm text-[#77766f]">Order total</span>
                 <span className="text-xl font-semibold">
-                  ${order.total.toFixed(2)}
+                  ${(order.total ?? 0).toFixed(2)}
                 </span>
               </div>
             </div>

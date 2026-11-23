@@ -288,12 +288,12 @@ export interface Order {
   customer: number | Customer;
   items: {
     product: number | Product;
-    name: string;
-    price: number;
+    name?: string | null;
+    price?: number | null;
     quantity: number;
     id?: string | null;
   }[];
-  total: number;
+  total?: number | null;
   status?: ('pending' | 'paid' | 'shipped' | 'cancelled') | null;
   updatedAt: string;
   createdAt: string;
